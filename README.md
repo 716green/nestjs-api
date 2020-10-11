@@ -26,6 +26,15 @@
 
 ## Description
 
+Notes taken by Bob Bass - [716green](https://github.com/716green)
+
+Following udemy class by Ariel Weinberger "NestJS - From Zero to Hero"
+
+#### Leftoff:
+[Feature: Creating a Task (Part 2: Controller)](https://www.udemy.com/course/nestjs-zero-to-hero/learn/lecture/14744772#overview)
+
+---
+
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
 ## Installation
@@ -45,6 +54,13 @@ $ npm run start:dev
 
 # production mode
 $ npm run start:prod
+```
+
+## Snippets
+
+```bash
+# Generate module
+nest g module <module-name>
 ```
 
 ## Test
@@ -96,6 +112,143 @@ $ npm run test:cov
 #### Deployment
 * Polishing for production
 * Deploying to AWS S3
+
+---
+## Modules
+```bash
+# Nest Generate Module
+nest g module <module-name>
+```
+---
+
+## Controllers
+```bash
+# Nest Generate Controller
+# -- spec creates spec file for unit tests
+nest g controller <controller-name> --no-spec
+```
+
+* Responsible for handling incoming **requests** and returning **responses** to the client.
+* Bound to a specific **path** (ex. "/tasks")
+* Contain **handlers** which handle **endpoints** and **request methods** (GET, POST, DELETE, etc.).
+* Can use **dependency injection** to consume providers within the same module.
+
+#### Defining a Controller
+Controllers are defined by decorating a class with the ```@Controller``` decorator. It accepts a string which is the **path** to be handeled by the controller.
+
+```typescript
+@Controller('/tasks')
+export class TasksController {
+  // ...
+}
+```
+Handlers are methods within the controller class, decorated with decorators such as **@Get**, **@Post**, **@Delete**, etc.
+
+```typescript
+@Controller('/tasks')
+export class TasksController {
+  @Get()
+  getAllTasks() {
+    // do something
+    return //...
+  }
+
+  @Post()
+  createTask() {
+    // do something
+    return //...
+  }
+}
+```
+#### Flow of data/processes
+```
+Inbound HTTP Request
+```
+🔽
+```
+Request => Controller
+Handler is called with arguments
+
+NestJS will parse the relevent request data abd it will be available in the handler
+```
+🔽
+```
+Handler handles the request
+Performs operations such as communication with the service
+Ex. Retreiving item from database
+```
+🔽
+```
+Response can be of any type and even an exception
+Nest will wrap the returned value as an HTTP response and return it to the client
+```
+
+![Flow Through Controllers](imagesForReadme/controllers.png)
+
+---
+# Providers
+* Can be injected into constructors if decorated as ```@Injectable```, via **dependency injection**.
+* Can be a plain value, a class, sync/async factory, etc.
+* Providers must be provided to a module for them to be usable.
+
+#### Services
+
+```bash
+# Nest Generate Service <folder-to-search-for>
+# -- spec creates spec file for unit tests
+# Creates a plain TS class with @injectable decorator
+nest g service tasks --no-spec
+```
+
+* Defined as providers. **Not all providers are services**.
+* Common concept in development and are not exclusive to this language or framework.
+* Singleton when wtapped with ```@Injectable``` and provided to a module. That means, the same instance will be shared across the application acting as a single source of truth.
+* The main source of business logic. Fr example, a service will be called from a controller to validate data, create an item in the database and return a response.
+
+![Service Module](imagesForReadme/serviceModule.png)
+
+#### Providers in Modules
+
+```typescript
+import {TasksController} from './tasks.controller';
+import {TasksService} from './tasks.service';
+import {LoggerService} from '../shared/logger.service';
+
+@Module({
+  controllers: [
+    TasksController
+  ],
+  providers: [
+    TasksService,
+    LoggerService
+  ]
+})
+export class TasksModule{}
+
+```
+
+#### Dependency Injection
+Any component within the NestJS ecosyste can inject a provider that is decorated with the ```@Injectable```
+
+```typescript
+import {TasksService} from './tasks.service';
+
+@Controller('/tasks')
+export class TasksController {
+  constructor(private tasksService: TasksService) {}
+
+  @Get()
+  async getAllTasks() {
+    return await this.tasksService.getAllTasks();
+  }
+}
+
+```
+
+
+
+
+
 
 ---
 # Endpoints

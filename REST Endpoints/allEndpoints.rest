@@ -1,0 +1,10 @@
+## CRUD
+GET http://localhost:3000/tasks
+# GET /tasks/:id
+# POST /tasks
+# DELETE /tasks/:id
+# PATCH /tasks/:id/status
+
+## Authentication
+# POST /auth/signup
+# POST /auth/signin
